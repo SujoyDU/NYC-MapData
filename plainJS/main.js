@@ -28,9 +28,9 @@ function mouseInToRegion(e) {
 
   // update the label
   document.getElementById('data-label').textContent =
-      e.feature.getProperty('boro_cd');
+    e.feature.getProperty('boro_cd');
   document.getElementById('data-value').textContent =
-      e.feature.getProperty('shape_area').toLocaleString();
+    e.feature.getProperty('shape_area').toLocaleString();
   document.getElementById('data-box').style.display = 'block';
   //document.getElementById('data-caret').style.display = 'block';
   // document.getElementById('data-caret').style.paddingLeft = percent + '%';

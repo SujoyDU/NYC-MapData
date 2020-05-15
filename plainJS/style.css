@@ -1,17 +1,13 @@
- #map {
-    height: 800px;  /* The height is 400 pixels */
-    width: 100%;  /* The width is the width of the web page */
-   }
-body {
-   height: 100%;
-   margin: 10;
-   padding: 2;
-}
-#map-canvas,html {
+#map {
+   height: 600px;
+   width: 100%;
+ }
+ 
+ #map-canvas,html {
    height: 100%;
    width: 100%;
-}
-#data-box {
+ }
+ #data-box {
    top: 10px;
    left: 500px;
    height: 45px;
@@ -33,3 +29,4 @@ body {
  #data-value { font-size: 2.0em; font-weight: bold }
  #data-label { font-size: 2.0em; font-weight: normal; padding-right: 10px; }
  #data-label:after { content: ':' }
+ 
