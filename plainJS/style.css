@@ -1,11 +1,11 @@
 #map {
-   height: 600px;
-   width: 100%;
+   height: 100%;
  }
  
- #map-canvas,html {
+ html,body {
    height: 100%;
-   width: 100%;
+   margin:0;
+   padding:0;
  }
  #data-box {
    top: 10px;
