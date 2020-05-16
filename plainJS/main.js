@@ -1,4 +1,4 @@
-var map;
+var map, map2;
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 11,
@@ -9,7 +9,8 @@ function initMap() {
   map.data.loadGeoJson('comdis.geojson');
   map.data.setStyle({
     fillColor: 'blue',
-    strokeWeight: 1
+    strokeWeight: 1,
+    opacity: 0.40
   });
 
   // map.data.addListener('mouseover', function(event) {

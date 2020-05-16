@@ -1,72 +1,37 @@
-var map, map2;
+var map;
 function initMap() {
-  var myOptions = {
+  map = new google.maps.Map(document.getElementById('map'), {
     zoom: 11,
     center: new google.maps.LatLng(40.67453,-73.71342),
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-  }
-  map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-
-  var cdLayer = new google.maps.Data();
-  var rangeLayer = new google.maps.Data();
-  
-  cdLayer.loadGeoJson('comdis.geojson')
-  rangeLayer.loadGeoJson('obesity_cd.geojson')
-  cdLayer.setStyle({
-    fillColor: 'blue',
-    strokeWeight: 1,
-    fillOpacity:.20
-  })
-  rangeLayer.setStyle(styleFeatureRange)
-  cdLayer.setMap(map)
-  rangeLayer.setMap(map)
-  /*
-  map.data.loadGeoJson('obesity_cd.geojson', {},
-    function(features) {
-      console.log(map.data.getFeatureById(1));
-      console.log(map.data.getFeatureById(1).getProperty("pct_obese_rng"));
-    });
-    */
- 
-
-  //map.data.loadGeoJson('obesity_cd.geojson');
-  
-  /*
-  map.data.setStyle({
-    fillColor: '#D96969',
-    strokeWeight: 1
+    mapTypeId: 'roadmap'
   });
-  */
   
-  //map.data.setStyle(styleFeatureRange);
+  map.data.setStyle(styleFeature);
+  map.data.addListener('mouseover', mouseInToRegion);
+  map.data.addListener('mouseout', mouseOutOfRegion);
 
-  //map2.data.loadGeoJson('comdis.geojson');
- 
-  /*
-   map2.data.setStyle({
-    fillColor: 'blue',
-    strokeWeight: 1,
-    fillOpacity:.90
+
+  var selectBox = document.getElementById('census-variable');
+  google.maps.event.addDomListener(selectBox, 'change', function() {
+    clearCensusData();
+    loadCensusData(selectBox.options[selectBox.selectedIndex].value);
   });
-  map.data.setStyle(function(feature) {
-    var obesity_range = feature.getProperty('pctbmige30');
-    
-    var color = obesity_range > 31 ? 'red' : 'blue';
-    return {
-      fillColor: color,
-      strokeWeight: 1
-    };
-    
-});
-*/
 
+  // state polygons only need to be loaded once, do them now
+  loadMapShapes();
+}
 
-  // map.data.addListener('mouseover', function(event) {
-  //   document.getElementById('info-box').textContent =
-  //       event.feature.getProperty('boro_cd');
-  // });
-  rangeLayer.addListener('mouseover', mouseInToRegion);
-  rangeLayer.addListener('mouseout', mouseOutOfRegion);
+/** Loads the state boundary polygons from a GeoJSON source. */
+function loadMapShapes() {
+  // load US state outline polygons from a GeoJson file
+  map.data.loadGeoJson('obesity_cd.geojson', { idPropertyName: 'boro_cd' });
+
+  // wait for the request to complete by listening for the first feature to be
+  // added
+  google.maps.event.addListenerOnce(map.data, 'addfeature', function() {
+    google.maps.event.trigger(document.getElementById('census-variable'),
+        'change');
+  });
 }
 
 /*
@@ -152,6 +117,7 @@ function styleFeatureRange(feature) {
   for (let i = 0; i < colorRange.length; i++) {
     if (colorRange[i].range == feature.getProperty('pct_obese_rng')) {
       color = colorRange[i].hexa;
+      console.log(color)
       break
     }
   }
@@ -170,6 +136,39 @@ function styleFeatureRange(feature) {
   };
 
 }
+function loadCensusData(variable) {
+  // load the requested variable from the census API (using local copies)
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', variable + '.json');
+  xhr.onload = function() {
+    var censusData = JSON.parse(xhr.responseText);
+    censusData.shift(); // the first row contains column names
+    censusData.forEach(function(row) {
+      var censusVariable = parseFloat(row[0]);
+      var stateId = row[1];
+
+      // keep track of min and max values
+      if (censusVariable < censusMin) {
+        censusMin = censusVariable;
+      }
+      if (censusVariable > censusMax) {
+        censusMax = censusVariable;
+      }
+
+      // update the existing row with the new data
+      map.data
+        .getFeatureById(stateId)
+        .setProperty('census_variable', censusVariable);
+    });
+
+    // update and display the legend
+    document.getElementById('census-min').textContent =
+        censusMin.toLocaleString();
+    document.getElementById('census-max').textContent =
+        censusMax.toLocaleString();
+  };
+  xhr.send();
+}
 function styleFeature(feature) {
 
   
@@ -180,7 +179,7 @@ function styleFeature(feature) {
   // delta represents where the value sits between the min and max
   var delta = (feature.getProperty('pctbmige30') - censusMin) /
       (censusMax - censusMin);
-  delta = 1-delta
+
   var color = [];
   for (var i = 0; i < 3; i++) {
     // calculate an integer color based on the delta
@@ -204,7 +203,7 @@ function styleFeature(feature) {
     strokeColor: '#fff',
     zIndex: zIndex,
     fillColor: 'hsl(' + color[0] + ',' + color[1] + '%,' + color[2] + '%)',
-    fillOpacity: 0.70,
+    fillOpacity: 0.75,
     visible: showRow
   };
 }
@@ -253,14 +252,15 @@ function mouseInToRegion(e) {
   //     (censusMax - censusMin) * 100;
 
   // update the label
+
   document.getElementById('data-label').textContent =
     e.feature.getProperty('boro_cd');
   document.getElementById('data-value').textContent =
     e.feature.getProperty('pctbmige30').toLocaleString();
   document.getElementById('data-box').style.display = 'block';
 
-  //document.getElementById('data-caret').style.display = 'block';
-  // document.getElementById('data-caret').style.paddingLeft = percent + '%';
+  document.getElementById('data-caret').style.display = 'block';
+  document.getElementById('data-caret').style.paddingLeft = percent + '%';
 }
 
 /**
