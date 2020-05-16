@@ -157,7 +157,7 @@ function styleFeature(feature) {
   // delta represents where the value sits between the min and max
   var delta = (feature.getProperty('pctbmige30') - censusMin) /
       (censusMax - censusMin);
-
+  delta = 1-delta
   var color = [];
   for (var i = 0; i < 3; i++) {
     // calculate an integer color based on the delta
@@ -181,7 +181,7 @@ function styleFeature(feature) {
     strokeColor: '#fff',
     zIndex: zIndex,
     fillColor: 'hsl(' + color[0] + ',' + color[1] + '%,' + color[2] + '%)',
-    fillOpacity: 0.75,
+    fillOpacity: 0.50,
     visible: showRow
   };
 }
