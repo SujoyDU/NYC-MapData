@@ -42,6 +42,10 @@ function initMap() {
   rangeLayer = new google.maps.Data();
   valueLayer = new google.maps.Data();
   gymmarkerLayer= new google.maps.Data();
+  gymNumberLayer = new google.maps.Data();
+
+  gymNumberLayer.loadGeoJson('gyms_cd.geojson');
+
   gymmarkerLayer.loadGeoJson('nyc_gyms.geojson', null, function (features) {
     var markers = features.map(function (feature) {
         var g = feature.getGeometry();
@@ -63,7 +67,9 @@ function initMap() {
   })
   rangeLayer.setStyle(styleFeatureRange)
   valueLayer.setStyle(styleFeature)
-  cdLayer.setMap(map)
+  //cdLayer.setMap(map)
+  gymNumberLayer.setStyle(styleGymNumber)
+  gymNumberLayer.setMap(map)
   //rangeLayer.setMap(map)
   //valueLayer.setMap(map)
 
@@ -233,6 +239,41 @@ function styleFeatureRange(feature) {
     fillOpacity: 0.90,
     visible: true
   };
+
+}
+
+function styleGymNumber(feature){
+  var low = [5, 69, 54];  // color of smallest datum
+  var high = [151, 83, 34];   // color of largest datum
+  var min = 10
+  var max = 70
+  // delta represents where the value sits between the min and max
+  var delta = (feature.getProperty('number_of_gyms') - min) /
+      (max - min);
+
+  var color = [];
+  for (var i = 0; i < 3; i++) {
+    // calculate an integer color based on the delta
+    color[i] = (high[i] - low[i]) * delta + low[i];
+  }
+
+  // determine whether to show this shape or not
+ 
+
+  var outlineWeight = 0.5, zIndex = 1;
+  if (feature.getProperty('state') === 'hover') {
+    outlineWeight = zIndex = 2;
+  }
+
+  return {
+    strokeWeight: outlineWeight,
+    strokeColor: '#fff',
+    zIndex: zIndex,
+    fillColor: 'hsl(' + color[0] + ',' + color[1] + '%,' + color[2] + '%)',
+    fillOpacity: 0.75,
+    visible: true
+  };
+      
 
 }
 function styleFeature(feature) {

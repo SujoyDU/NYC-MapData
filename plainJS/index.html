@@ -4,20 +4,23 @@
   <head> 
     <link rel="stylesheet" type="text/css" href="./style.css">
   </head>
-
   <body>
-    <h3>My Google Maps Demo</h3>
-      
+    <h3>Visualizing Obesity data with Correlation to Gyms and Restaurants</h3>    
       <div id="map_canvas"></div>
       <div id="data-box" class="nicebox">
         <label id="data-label" for="data-value"></label>
         <span id="data-value"></span>
       </div>
-      <script src = "obesityHeatmap.js"></script>
-      <!-- <script src = "mutipolygon.js"></script> -->
-     
+      
 
-      <script async defer src="https://maps.googleapis.com/maps/api/js?key=API_KEY&callback=initMap"></script>  
+      <!-- <div id="floating-panel">
+        <input type="button" value="Toggle obesity_layer" onclick="toggle();"></input>
+      </div> -->
+      <!-- <script src = "obesityHeatmap.js"></script> -->
+      <script src = "main.js"></script>
+     
+      <script src="https://unpkg.com/@google/markerclustererplus@4.0.1/dist/markerclustererplus.min.js"></script> 
+      <script async defer src="https://maps.googleapis.com/maps/api/js?key=API_KEY&callback=initMap"></script>     
       <div></div>
   </body>
   
