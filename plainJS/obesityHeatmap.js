@@ -1,5 +1,5 @@
 var map, map2;
-var cdLayer,rangeLayer,valueLayer
+var cdLayer,rangeLayer,valueLayer, markerLayer
 var flag = true;
 function initMap() {
   var myOptions = {
@@ -8,7 +8,47 @@ function initMap() {
     mapTypeId: google.maps.MapTypeId.ROADMAP
   }
   map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+  //map.data.loadGeoJson('nyc_gyms.geojson')
+ 
+  map.data.loadGeoJson('nyc_gyms.geojson', null, function (features) {
+    var markers = features.map(function (feature) {
+        var g = feature.getGeometry();
+        var marker = new google.maps.Marker({ 'position': g.get(0) });
+        return marker;
+    });
 
+    var markerCluster = new MarkerClusterer(map, markers,{ imagePath: 'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m' });
+  });
+  
+  map.data.setMap(null);
+  //cluster
+  /*
+  // Create an array of alphabetical characters used to label the markers.
+   var markerCluster = new MarkerClusterer(map, markers,
+    {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+  }
+  var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  markerLayer = new google.maps.Data();
+  markerLayer.loadGeoJson("nyc_gyms.geojson")
+  // Add some markers to the map.
+  // Note: The code uses the JavaScript Array.prototype.map() method to
+  // create an array of markers based on a given "locations" array.
+  // The map() method here has nothing to do with the Google Maps API.
+  var markers = locations.map(function(location, i) {
+    return new google.maps.Marker({
+      position: location,
+      label: labels[i % labels.length]
+    });
+  });
+
+  // Add a marker clusterer to manage the markers.
+  var markerCluster = new MarkerClusterer(map, markers,
+      {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+}
+
+
+  //
+  */
   
   cdLayer = new google.maps.Data();
   rangeLayer = new google.maps.Data();
@@ -24,7 +64,7 @@ function initMap() {
   })
   rangeLayer.setStyle(styleFeatureRange)
   valueLayer.setStyle(styleFeature)
-  cdLayer.setMap(map)
+  //cdLayer.setMap(map)
   //rangeLayer.setMap(map)
   //valueLayer.setMap(map)
 
