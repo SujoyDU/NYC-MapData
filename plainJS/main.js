@@ -1,4 +1,5 @@
 var map;
+
 //initialize the map
 function initMap() {
   var myOptions = {
@@ -7,30 +8,48 @@ function initMap() {
     mapTypeId: google.maps.MapTypeId.ROADMAP
   }
   map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-  loadBaseLayer()
+  loadBaseLayer()    
 }
+
 
 //community district base layer
 function loadBaseLayer(){
   cdLayer = new google.maps.Data();
-  cdLayer.loadGeoJson('comdis.geojson');
-  cdLayer.setStyle({
-    fillColor: '#3454b5',
-    strokeWeight: 1,
-    fillOpacity:.20
-  });
-  cdLayer.addListener('click', function(event) {
-    var feat = event.feature;
-    var html = "<b>"+feat.getProperty('boro_cd')+"</b><br>"+feat.getProperty('shape_area');
-    infowindow.setContent(html);
-    infowindow.setPosition(event.latLng);
-    infowindow.setOptions({pixelOffset: new google.maps.Size(0,-34)});
-    infowindow.open(map);
- });
+  var infoWindow = new google.maps.InfoWindow({position:{lat:40.67453,lng:-73.71342}});
+  cdLayer.loadGeoJson('Population_Obesity_CD.geojson');
+  cdLayer.setStyle(cdLayerStyle);
+  cdLayer.addListener('mouseover', mouseInToCDLayer);
+  cdLayer.addListener('mouseout', mouseOutOfCDLayer);
+  cdLayer.addListener('click', function(e) {
+    // Create a new InfoWindow.
+    infoWindow.close()
+    infoWindow = new google.maps.InfoWindow({position:e.latLng});
+    infoWindow.setContent(e.latLng.toString());
+    infoWindow.open(map);
   
-  cdLayer.setMap(map); 
-}
+  });
+  cdLayer.setMap(map);
+ }
 
+function cdLayerStyle(feature){
+  var outlineWeight = 0.5, zIndex = 1;
+  if (feature.getProperty('state') === 'hover') {
+    outlineWeight = zIndex = 2;
+  }
+  return {
+    strokeWeight: outlineWeight,
+    zIndex: zIndex,
+    fillColor: '#3454b5',
+    fillOpacity: 0.20,
+    
+  };
+}
+function mouseInToCDLayer(e){
+  e.feature.setProperty('state','hover')
+}
+function mouseOutOfCDLayer(e){
+  e.feature.setProperty('state','normal')
+}
 /*
 cdLayer.addListener('click', function(event) {
     var feat = event.feature;
