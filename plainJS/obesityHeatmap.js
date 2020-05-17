@@ -9,18 +9,6 @@ function initMap() {
   }
   map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
   //map.data.loadGeoJson('nyc_gyms.geojson')
- 
-  map.data.loadGeoJson('nyc_gyms.geojson', null, function (features) {
-    var markers = features.map(function (feature) {
-        var g = feature.getGeometry();
-        var marker = new google.maps.Marker({ 'position': g.get(0) });
-        return marker;
-    });
-
-    var markerCluster = new MarkerClusterer(map, markers,{ imagePath: 'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m' });
-  });
-  
-  map.data.setMap(null);
   //cluster
   /*
   // Create an array of alphabetical characters used to label the markers.
@@ -53,7 +41,18 @@ function initMap() {
   cdLayer = new google.maps.Data();
   rangeLayer = new google.maps.Data();
   valueLayer = new google.maps.Data();
-  
+  gymmarkerLayer= new google.maps.Data();
+  gymmarkerLayer.loadGeoJson('nyc_gyms.geojson', null, function (features) {
+    var markers = features.map(function (feature) {
+        var g = feature.getGeometry();
+        var marker = new google.maps.Marker({ 'position': g.get(0) });
+        return marker;
+    });
+
+    var markerCluster = new MarkerClusterer(map, markers,{ imagePath: 'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m' });
+  });
+
+  gymmarkerLayer.setMap(null);
   cdLayer.loadGeoJson('comdis.geojson')
   rangeLayer.loadGeoJson('obesity_cd.geojson')
   valueLayer.loadGeoJson('obesity_cd.geojson')
@@ -64,7 +63,7 @@ function initMap() {
   })
   rangeLayer.setStyle(styleFeatureRange)
   valueLayer.setStyle(styleFeature)
-  //cdLayer.setMap(map)
+  cdLayer.setMap(map)
   //rangeLayer.setMap(map)
   //valueLayer.setMap(map)
 
