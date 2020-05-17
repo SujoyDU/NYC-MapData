@@ -1,4 +1,6 @@
 var map, map2;
+var cdLayer,rangeLayer,valueLayer
+var flag = true;
 function initMap() {
   var myOptions = {
     zoom: 11,
@@ -7,19 +9,25 @@ function initMap() {
   }
   map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
-  var cdLayer = new google.maps.Data();
-  var rangeLayer = new google.maps.Data();
+  
+  cdLayer = new google.maps.Data();
+  rangeLayer = new google.maps.Data();
+  valueLayer = new google.maps.Data();
   
   cdLayer.loadGeoJson('comdis.geojson')
   rangeLayer.loadGeoJson('obesity_cd.geojson')
+  valueLayer.loadGeoJson('obesity_cd.geojson')
   cdLayer.setStyle({
     fillColor: 'blue',
     strokeWeight: 1,
     fillOpacity:.20
   })
   rangeLayer.setStyle(styleFeatureRange)
+  valueLayer.setStyle(styleFeature)
   cdLayer.setMap(map)
-  rangeLayer.setMap(map)
+  //rangeLayer.setMap(map)
+  //valueLayer.setMap(map)
+
   /*
   map.data.loadGeoJson('obesity_cd.geojson', {},
     function(features) {
@@ -60,15 +68,33 @@ function initMap() {
 });
 */
 
-
+  //map.data.addListener('mouseover', mouseInToRegion);
+  //map.data.addListener('mouseout', mouseOutOfRegion);
   // map.data.addListener('mouseover', function(event) {
   //   document.getElementById('info-box').textContent =
   //       event.feature.getProperty('boro_cd');
   // });
   rangeLayer.addListener('mouseover', mouseInToRegion);
   rangeLayer.addListener('mouseout', mouseOutOfRegion);
-}
 
+  valueLayer.addListener('mouseover', mouseInToRegion);
+  valueLayer.addListener('mouseout', mouseOutOfRegion);
+
+}
+function toggle(){
+  if(flag) {
+    flag = false
+    console.log("valueLayer")
+    rangeLayer.setMap(null)
+    valueLayer.setMap(map)
+  }
+  else{
+    flag = true
+    console.log("rangeLayer")
+    valueLayer.setMap(null)
+    rangeLayer.setMap(map)
+  }
+}
 /*
 0.0-24.24
 24.25-28.57
@@ -165,7 +191,7 @@ function styleFeatureRange(feature) {
     strokeColor: '#fff',
     zIndex: zIndex,
     fillColor: color,
-    fillOpacity: 0.75,
+    fillOpacity: 0.90,
     visible: true
   };
 
@@ -173,14 +199,14 @@ function styleFeatureRange(feature) {
 function styleFeature(feature) {
 
   
-  var low = [5, 69, 54];  // color of smallest datum
-  var high = [151, 83, 34];   // color of largest datum
+  var low = [1, 69, 54];  // color of smallest datum
+  var high = [359, 83, 34];   // color of largest datum
   var censusMin = 0.00
   var censusMax = 100.00
   // delta represents where the value sits between the min and max
   var delta = (feature.getProperty('pctbmige30') - censusMin) /
       (censusMax - censusMin);
-  delta = 1-delta
+  
   var color = [];
   for (var i = 0; i < 3; i++) {
     // calculate an integer color based on the delta
@@ -204,7 +230,7 @@ function styleFeature(feature) {
     strokeColor: '#fff',
     zIndex: zIndex,
     fillColor: 'hsl(' + color[0] + ',' + color[1] + '%,' + color[2] + '%)',
-    fillOpacity: 0.70,
+    fillOpacity: 0.90,
     visible: showRow
   };
 }
