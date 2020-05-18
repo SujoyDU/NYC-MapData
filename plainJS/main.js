@@ -2,6 +2,7 @@ var map;
 var markerCluster;
 var markers;
 var flag = true;
+var markerFlag = false;
 var colorRange =[
   {
     range:'0.0 - 24.24',
@@ -87,22 +88,7 @@ function initMap() {
   
 }
 
-function gymLayer(){
-  var infoWin = new google.maps.InfoWindow();
-  gymmarkerLayer.loadGeoJson('nyc_gyms.geojson', null, function (features) {
-  var markers = features.map(function (location) {
-        var g = location.getGeometry();
-        var name  = location.j.name;
-        var marker = new google.maps.Marker({ 'position': g.get(0) });
-        google.maps.event.addListener(marker, 'click', function(location) {
-          infoWin.setContent(name);
-          infoWin.open(map, marker);
-        })
-        return marker;
-    });
-    markerCluster = new MarkerClusterer(map, markers,{ imagePath: 'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m' });
-  });
-}
+
 
 
 function styleFeatureRange(feature) {
@@ -211,14 +197,34 @@ function cdLayerStyle(feature){
     
   };
 }
- 
+
+function gymLayer(){
+  markerFlag = true;
+  var infoWin = new google.maps.InfoWindow();
+  gymmarkerLayer.loadGeoJson('nyc_gyms.geojson', null, function (features) {
+  var markers = features.map(function (location) {
+        var g = location.getGeometry();
+        var name  = location.j.name;
+        var marker = new google.maps.Marker({ 'position': g.get(0) });
+        google.maps.event.addListener(marker, 'click', function(location) {
+          infoWin.setContent(name);
+          infoWin.open(map, marker);
+        })
+        return marker;
+    });
+    markerCluster = new MarkerClusterer(map, markers,{ imagePath: 'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m' });
+  });
+}
 function baseLayer(e){
-  e.preventDefault();
-  e.stopPropagation();
-  markerCluster.clearMarkers();
   valueLayer.setMap(null);
   rangeLayer.setMap(null);
   gymmarkerLayer.setMap(null);
+  if(markerFlag){
+    e.preventDefault();
+    e.stopPropagation();
+    markerCluster.clearMarkers();
+    markerFlag = false; 
+  }
 }
 function toggleObesityLayer(){
   if(flag) {
