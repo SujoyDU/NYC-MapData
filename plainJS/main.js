@@ -1,8 +1,10 @@
 var map;
 var markerCluster;
+var restaurantMarkerCluster;
 var markers;
 var flag = true;
 var markerFlag = false;
+var restaurantMarkerFlag = false;
 var colorRange =[
   {
     range:'0.0 - 24.24',
@@ -56,14 +58,6 @@ var colorRange =[
   },
 
 ]
-/*
-[  1.00,   7.00] |    14 #1EC100
-(  7.00,  16.60] |    11 #099700
-( 16.60,  24.20] |    13 #00710D
-( 24.20,  45.00] |    12 #006018
-( 45.00, 165.00] |    13 #004731
-*/
-  
 
 //initialize the map
 function initMap() {
@@ -92,49 +86,55 @@ function initMap() {
   valueLayer.addListener('mouseout', mouseOutOfRegion);
 
   //gym layer
-  gymmarkerLayer= new google.maps.Data();
+  gymmarkerLayer= new google.maps.Data();  
   gymChoroplethLayer = new google.maps.Data();
   gymChoroplethLayer.loadGeoJson('gyms_cd.geojson');
   gymChoroplethLayer.setStyle(styleFeatureGyms);
-  gymChoroplethLayer.addListener('mouseover', mouseInToGymRegion);
-  gymChoroplethLayer.addListener('mouseout', mouseOutOfGymRegion);
+  gymChoroplethLayer.addListener('mouseover', mouseInToGym);
+  gymChoroplethLayer.addListener('mouseout', mouseOutOfGym);
+
+
+  //restaurant layer
+  restaurantMarkerLayer = new google.maps.Data();
   
 }
-function mouseInToGymRegion(e){
+
+function mouseInToGym(e){
   e.feature.setProperty('state', 'hover');
-}
-function mouseOutOfGymRegion(e){
-  e.feature.setProperty('state', 'normal');
-}
+  document.getElementById('data-label').textContent =
+    e.feature.getProperty('GEO_DISPLAY_NAME');
+  document.getElementById('data-value').textContent =
+    e.feature.getProperty('number_of_gyms').toLocaleString();
+  document.getElementById('data-box').style.display = 'block';
 
+}
+function mouseOutOfGym(e){
+  e.feature.setProperty('state','normal');
 
+}
 function styleFeatureGyms(feature){
   var outlineWeight = 0.5, zIndex = 1;
   var color ='';
-  if (feature.getProperty('obesity_cd') <8.00) {
-    color =  '#1EC100'
+  if (feature.getProperty('number_of_gyms') <8.00) {
+    color =  '#ffffcc'
   }
-  else if(feature.getProperty('obesity_cd')<17.00) {
-    color = '#099700'
+  else if(feature.getProperty('number_of_gyms')<17.00) {
+    color = '#c2e699'
   }
-  else if(feature.getProperty('obesity_cd') <25) {
-    color ='#00710D'
+  else if(feature.getProperty('number_of_gyms') <25) {
+    color ='#78c679'
   }
-  else if(feature.getProperty('obesity_cd') <45) {
-    color ='#006018'
+  else if(feature.getProperty('number_of_gyms') <45) {
+    color ='#31a354'
   } 
-  else if(feature.getProperty('obesity_cd') <100) {
-    color ='#004731'
+  else if(feature.getProperty('number_of_gyms') <165) {
+    color ='#006837'
   } 
-  else {
-    color ='#003147'
-  }
-  
-
+  var outlineWeight = 0.5, zIndex = 1;
   if (feature.getProperty('state') === 'hover') {
     outlineWeight = zIndex = 2;
   }
-
+  
   return {
     strokeWeight: outlineWeight,
     strokeColor: '#fff',
@@ -270,15 +270,42 @@ function gymLayer(){
     markerCluster = new MarkerClusterer(map, markers,{ imagePath: 'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m' });
   });
 }
+
+function restaurantMarkers(){
+  restaurantMarkerFlag = true;
+  var infoW = new google.maps.InfoWindow();
+  restaurantMarkerLayer.loadGeoJson('nyc_FastFood.geojson', null, function (features) {
+  var mrkrs = features.map(function (location) {
+        var k = location.getGeometry();
+        var name  = location.j.DBA;
+        var marker = new google.maps.Marker({ 'position': k.get(0) });
+        google.maps.event.addListener(marker, 'click', function(location) {
+          infoW.setContent(name);
+          infoW.open(map, marker);
+        })
+        return marker;
+    });
+    restaurantMarkerCluster = new MarkerClusterer(map, mrkrs,{ imagePath: 'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m' });
+  });
+}
+
+
 function baseLayer(e){
   valueLayer.setMap(null);
   rangeLayer.setMap(null);
   gymmarkerLayer.setMap(null);
+  gymChoroplethLayer.setMap(null);
   if(markerFlag){
     e.preventDefault();
     e.stopPropagation();
     markerCluster.clearMarkers();
     markerFlag = false; 
+  }
+  if(restaurantMarkerFlag){
+    e.preventDefault();
+    e.stopPropagation();
+    restaurantMarkerCluster.clearMarkers();
+    restaurantMarkerFlag = false; 
   }
 }
 function toggleObesityLayer(){
@@ -294,50 +321,5 @@ function toggleObesityLayer(){
   }
 }
 function gymChoropleth(){
-  gymChoroplethLayer.setMap(map)
+  gymChoroplethLayer.setMap(map);
 }
-
-/*
-cdLayer.addListener('click', function(event) {
-    var feat = event.feature;
-    var html = "<b>"+feat.getProperty('name')+"</b><br>"+feat.getProperty('description');
-    html += "<br><a class='normal_link' target='_blank' href='"+feat.getProperty('link')+"'>link</a>";
-    infowindow.setContent(html);
-    infowindow.setPosition(event.latLng);
-    infowindow.setOptions({pixelOffset: new google.maps.Size(0,-34)});
-    infowindow.open(map);
- });
-
-
-function mouseInToRegion(e) {
-  // set the hover state so the setStyle function can change the border
-  e.feature.setProperty('state', 'hover');
-  
-
-  // var percent = (e.feature.getProperty('census_variable') - censusMin) /
-  //     (censusMax - censusMin) * 100;
-
-  // update the label
-  document.getElementById('data-label').textContent =
-    e.feature.getProperty('boro_cd');
-  document.getElementById('data-value').textContent =
-    e.feature.getProperty('pctbmige30').toLocaleString();
-  document.getElementById('data-box').style.display = 'block';
-
-  //document.getElementById('data-caret').style.display = 'block';
-  // document.getElementById('data-caret').style.paddingLeft = percent + '%';
-}
-
-/**
- * Responds to the mouse-out event on a map shape (state).
- *
- * @param {?google.maps.MouseEvent} e
- */
-/*
-function mouseOutOfRegion(e) {
-  // reset the hover state, returning the border to normal
-  e.feature.setProperty('state', 'normal');
-}
-
-
- */
