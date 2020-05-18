@@ -208,22 +208,22 @@ function styleFeatureRestaurant(feature){
   if (feature.getProperty('number_of_fast_food') <15.00) {
     color =  '#ffffcc'
   }
-  else if(feature.getProperty('number_of_gyms')<20.00) {
+  else if(feature.getProperty('number_of_fast_food')<20.00) {
     color = '#ffeda0'
   }
-  else if(feature.getProperty('number_of_gyms') <25.00) {
+  else if(feature.getProperty('number_of_fast_food') <25.00) {
     color ='#fed976'
   }
-  else if(feature.getProperty('number_of_gyms') <30.00) {
+  else if(feature.getProperty('number_of_fast_food') <30.00) {
     color ='#feb24c'
   } 
-  else if(feature.getProperty('number_of_gyms') <40) {
+  else if(feature.getProperty('number_of_fast_food') <40) {
     color ='#fd8d3c'
   } 
-  else if(feature.getProperty('number_of_gyms') <50) {
+  else if(feature.getProperty('number_of_fast_food') <50) {
     color ='#fc4e2a'
   } 
-  else if(feature.getProperty('number_of_gyms') <70) {
+  else if(feature.getProperty('number_of_fast_food') <70) {
     color ='#e31a1c'
   } 
   else {
@@ -449,6 +449,27 @@ function baseLayer(e){
   }
 }
 function toggleObesityLayer(){
+  /*
+  var layers = ['0-10', '10-20', '20-50', '50-100', '100-200', '200-500', '500-1000', '1000+'];
+  var colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'];
+  var legend = document.getElementById('legend');
+  for (i = 0; i < layers.length; i++) {
+    var layer = layers[i];
+    var color = colors[i];
+    var item = document.createElement('div');
+    var key = document.createElement('span');
+    key.className = 'legend-key';
+    key.style.backgroundColor = color;
+  
+    var value = document.createElement('span');
+    value.innerHTML = layer;
+    item.appendChild(key);
+    item.appendChild(value);
+    legend.appendChild(item);
+  }
+  
+  map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
+  */
   if(flag) {
     flag = false;
     rangeLayer.setMap(null);
@@ -458,6 +479,7 @@ function toggleObesityLayer(){
     flag = true;
     valueLayer.setMap(null);
     rangeLayer.setMap(map);
+    map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].pop(legend);
   }
 }
 function gymChoropleth(){
