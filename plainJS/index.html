@@ -5,7 +5,8 @@
     <link rel="stylesheet" type="text/css" href="./style.css">
   </head>
   <body>
-    <h3>Visualizing Obesity data with Correlation to Gyms and Restaurants</h3>    
+    <h3>Visualizing Obesity data with Correlation to Gyms and Restaurants</h3>
+    <input id="pac-input" class="controls" type="text" placeholder="Search Box">    
       
     <div id="map_canvas"></div>
 
@@ -27,7 +28,7 @@
     <script src = "main.js"></script>
     
     <script src="https://unpkg.com/@google/markerclustererplus@4.0.1/dist/markerclustererplus.min.js"></script> 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=API_KEY&callback=initMap"></script>     
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=API_KEY&libraries=places&callback=initMap"></script>     
     <div></div>
   </body>
   
