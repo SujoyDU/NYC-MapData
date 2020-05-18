@@ -96,7 +96,12 @@ function initMap() {
 
   //restaurant layer
   restaurantMarkerLayer = new google.maps.Data();
-  
+  restaurantChoroplethLayer = new google.maps.Data();
+  restaurantChoroplethLayer.loadGeoJson('FastFood_cd.geojson');
+  restaurantChoroplethLayer.setStyle(styleFeatureRestaurant);
+  restaurantChoroplethLayer.addListener('mouseover', mouseInToRestaurant);
+  restaurantChoroplethLayer.addListener('mouseout', mouseOutOfRestaurant);
+
 }
 
 function mouseInToGym(e){
@@ -112,6 +117,79 @@ function mouseOutOfGym(e){
   e.feature.setProperty('state','normal');
 
 }
+function mouseInToRestaurant(e){
+  e.feature.setProperty('state', 'hover');
+  document.getElementById('data-label').textContent =
+    e.feature.getProperty('GEO_DISPLAY_NAME');
+  document.getElementById('data-value').textContent =
+    e.feature.getProperty('number_of_fast_food').toLocaleString();
+  document.getElementById('data-box').style.display = 'block';
+
+}
+function mouseOutOfRestaurant(e){
+  e.feature.setProperty('state','normal');
+
+}
+
+/*
+#ffffcc
+#ffeda0
+#fed976
+#feb24c
+#fd8d3c
+#fc4e2a
+#e31a1c
+#b10026
+*/
+function styleFeatureRestaurant(feature){
+  var outlineWeight = 0.5, zIndex = 1;
+  var color ='';
+  if (feature.getProperty('number_of_fast_food') <15.00) {
+    color =  '#ffffcc'
+  }
+  else if(feature.getProperty('number_of_gyms')<20.00) {
+    color = '#ffeda0'
+  }
+  else if(feature.getProperty('number_of_gyms') <25.00) {
+    color ='#fed976'
+  }
+  else if(feature.getProperty('number_of_gyms') <30.00) {
+    color ='#feb24c'
+  } 
+  else if(feature.getProperty('number_of_gyms') <40) {
+    color ='#fd8d3c'
+  } 
+  else if(feature.getProperty('number_of_gyms') <50) {
+    color ='#fc4e2a'
+  } 
+  else if(feature.getProperty('number_of_gyms') <70) {
+    color ='#e31a1c'
+  } 
+  else {
+    color ='#b10026'
+  } 
+
+
+
+  var outlineWeight = 0.5, zIndex = 1;
+  if (feature.getProperty('state') === 'hover') {
+    outlineWeight = zIndex = 2;
+  }
+  
+  return {
+    strokeWeight: outlineWeight,
+    strokeColor: '#fff',
+    zIndex: zIndex,
+    fillColor: color,
+    fillOpacity: 0.90,
+    visible: true
+  };
+
+}
+
+
+
+
 function styleFeatureGyms(feature){
   var outlineWeight = 0.5, zIndex = 1;
   var color ='';
@@ -295,6 +373,7 @@ function baseLayer(e){
   rangeLayer.setMap(null);
   gymmarkerLayer.setMap(null);
   gymChoroplethLayer.setMap(null);
+  restaurantChoroplethLayer.setMap(null);
   if(markerFlag){
     e.preventDefault();
     e.stopPropagation();
@@ -322,4 +401,7 @@ function toggleObesityLayer(){
 }
 function gymChoropleth(){
   gymChoroplethLayer.setMap(map);
+}
+function restaurantChoropleth(){
+  restaurantChoroplethLayer.setMap(map);
 }
