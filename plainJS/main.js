@@ -56,6 +56,14 @@ var colorRange =[
   },
 
 ]
+/*
+[  1.00,   7.00] |    14 #1EC100
+(  7.00,  16.60] |    11 #099700
+( 16.60,  24.20] |    13 #00710D
+( 24.20,  45.00] |    12 #006018
+( 45.00, 165.00] |    13 #004731
+*/
+  
 
 //initialize the map
 function initMap() {
@@ -83,14 +91,60 @@ function initMap() {
   valueLayer.addListener('mouseover', mouseInToRegion);
   valueLayer.addListener('mouseout', mouseOutOfRegion);
 
- 
+  //gym layer
   gymmarkerLayer= new google.maps.Data();
+  gymChoroplethLayer = new google.maps.Data();
+  gymChoroplethLayer.loadGeoJson('gyms_cd.geojson');
+  gymChoroplethLayer.setStyle(styleFeatureGyms);
+  gymChoroplethLayer.addListener('mouseover', mouseInToGymRegion);
+  gymChoroplethLayer.addListener('mouseout', mouseOutOfGymRegion);
   
+}
+function mouseInToGymRegion(e){
+  e.feature.setProperty('state', 'hover');
+}
+function mouseOutOfGymRegion(e){
+  e.feature.setProperty('state', 'normal');
 }
 
 
+function styleFeatureGyms(feature){
+  var outlineWeight = 0.5, zIndex = 1;
+  var color ='';
+  if (feature.getProperty('obesity_cd') <8.00) {
+    color =  '#1EC100'
+  }
+  else if(feature.getProperty('obesity_cd')<17.00) {
+    color = '#099700'
+  }
+  else if(feature.getProperty('obesity_cd') <25) {
+    color ='#00710D'
+  }
+  else if(feature.getProperty('obesity_cd') <45) {
+    color ='#006018'
+  } 
+  else if(feature.getProperty('obesity_cd') <100) {
+    color ='#004731'
+  } 
+  else {
+    color ='#003147'
+  }
+  
 
+  if (feature.getProperty('state') === 'hover') {
+    outlineWeight = zIndex = 2;
+  }
 
+  return {
+    strokeWeight: outlineWeight,
+    strokeColor: '#fff',
+    zIndex: zIndex,
+    fillColor: color,
+    fillOpacity: 0.90,
+    visible: true
+  };
+
+}
 function styleFeatureRange(feature) {
   var outlineWeight = 0.5, zIndex = 1;
   var color =''
@@ -164,7 +218,7 @@ function mouseOutOfRegion(e) {
 function loadBaseLayer(){
   cdLayer = new google.maps.Data();
   var infoWindow = new google.maps.InfoWindow({position:{lat:40.67453,lng:-73.71342}});
-  cdLayer.loadGeoJson('Population_Obesity_CD.geojson');
+  cdLayer.loadGeoJson('gyms_cd.geojson');
   cdLayer.setStyle(cdLayerStyle);
 
   cdLayer.addListener('click', function(e) {
@@ -177,6 +231,7 @@ function loadBaseLayer(){
       '<div id="bodyContent">'+
         '<p><b>'+'Community District Code: '+'</b>'+e.feature.getProperty('GEO_LABEL')+'</p>'+
         '<p><b>'+'Total Population: '+'</b>'+totalPop+'</p>'+
+        '<p><b>'+'Number of Gyms: '+'</b>'+e.feature.getProperty('number_of_gyms')+'</p>'+
         '<p><b>'+'Obesity Rate of adult Population: '+'</b>'+e.feature.getProperty('obesity_cd')+'%</p>'+
       '</div>'+
     '</div>';
@@ -238,7 +293,9 @@ function toggleObesityLayer(){
     rangeLayer.setMap(map);
   }
 }
-
+function gymChoropleth(){
+  gymChoroplethLayer.setMap(map)
+}
 
 /*
 cdLayer.addListener('click', function(event) {
